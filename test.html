@@ -1,0 +1,287 @@
+<html>
+<head>
+	
+	<style>
+		body {
+			background-color: black;
+			margin: 0;
+			padding: 0;
+		}
+		
+		.container {
+			position: relative;
+			width: 1000px;
+			height: 500px;
+			left: 50%;
+			margin-left: -500px;
+		}
+		
+		.scribble-canvas {
+			z-index: 500;
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+		
+		.backing {
+			background-color:white;
+			width:1000px;
+			height: 500px;
+			position:absolute;
+			left:0px;
+			top:0px;
+		}
+		
+		#controls {
+			position: fixed;
+			top: 10px;
+			left: 10px;
+			z-index: 999;
+		}
+		
+		#controls button {
+			float: left;
+			background-color: gray;
+		}
+		#controls button.active {
+			background-color: orange;
+		}
+		
+		
+		.overlay { 
+			position:absolute;
+			left: 0px;
+			top: 0px;
+			width: 1000px;
+			height: 500px;
+			z-index: 600;
+/* 			font-size: 50px; */
+/* 			color: red; */
+/* 			text-align: center; */
+/* 			margin-top: 200px; */
+		}
+		
+		/* loading screen */
+		
+	.loadscreen {
+		width: 1000px;
+		display: block;
+		margin: 0 auto;
+		}
+	
+	.shading1 {
+		width: 450px;
+		height: 500px;
+		background: linear-gradient(to right, rgba(0,0,0,1), rgba(0,0,0,0));
+		position: absolute;
+		top: 0;
+		left: 0;
+		}
+		
+	.shading2 {
+		width: 350px;
+		height: 500px;
+		background: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+		position: absolute;
+		right: 0;
+		top: 0;
+		}	
+
+	.instructions {
+		width: 300px;
+		position: absolute;
+		top: 200px;
+		left: 50%;
+		text-align: center;
+		font-size: 20px;
+		font-family: sans-serif;
+		color: rgb(92, 30, 10);
+		margin-left: -155px;
+		}
+	
+	.instructions > h2 {
+		font-size: 19pt;
+		}
+		
+	.loading, .play {
+		font-family: sans-serif;
+		position: absolute;
+		top: 430px;
+		width: 100%;
+		font-size: 20px;
+		text-align: center;
+		}
+		
+	.loadbar {
+		width: 250px;
+		height: 15px;
+		border: 2px solid white;
+		background-color: white;
+		position: absolute;
+		top: 460px;
+		left: 50%;
+		margin-left: -125px;
+		border-radius: 4px;
+		}
+		
+	.loading-progress {
+		width: 1%;
+		height: 100%;
+		background-color: blue;
+		}		
+		
+	.winImage {
+		position: absolute;
+		top: -115px;
+		}
+	
+	.winnerbox {
+		width: 400px;
+		height: 200px;
+		background-color: lightblue;
+		position: absolute;
+		top: 150px;
+		left: 300px;
+		border-radius: 0 0 10px 10px;
+		font-family: sans-serif;
+		padding-top: 30px;
+		}
+		
+	h1 {
+		text-align: center;
+		font-size: 30pt;
+		color: brown;
+		margin: 40px;
+		}
+		
+	.winnerbox .instructions {
+		top: 100px;
+	}
+	
+	.winnerbox .instructions2 {
+		top: 100px;
+		width: 400px;
+		text-align: center;
+		font-size: 20px;
+		font-family: sans-serif;
+		color: rgb(92, 30, 10);
+		position: absolute;
+	}
+	.winnerbox .play {
+		top: 150px;
+		
+	}
+	
+	.shadow {
+		background-color: #000000;
+		opacity: .5;
+	}
+	
+	
+	</style>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+	
+	<script>
+	
+		function pt(x,y) {
+			return {x: x, y: y};
+		}
+		function ptc(p) {
+			return {x: p.x, y: p.y};
+		}
+		function rect(top, bottom, left, right) {
+			return {t: top, b: bottom, l: left, r: right};
+		}
+		function rectc(r) {
+			return {t: r.t, b: r.b, l: r.l, r: r.r};
+		}
+	</script>
+	
+	<script src="splash.js"></script>
+	<script src="waves.js"></script>
+	<script src="mud.js"></script>
+	<script src="otter.js"></script>
+	<script src="kelp.js"></script>
+	<script src="urchin.js"></script>
+	<script src="seaweed.js"></script>
+	<script src="collisions.js"></script>
+	<script src="hud.js"></script>
+	<script src="emitter.js"></script>
+	<script src="urchinator.js"></script>
+
+	<script>
+	var waitingOnUser = false;
+	var game_lvl = 1;
+	$(function() {
+		$('.again').click(function(e) {
+			e.preventDefault();
+			
+			$('.overlay').hide();
+			
+			game(game_lvl);
+		
+		});
+	
+		$('.intro').show();
+		
+		
+		$(document).keyup(function(e) { 
+			if(e.altKey && e.which == 78) {
+				console.log('new game: ' + (game_lvl+1));
+				newgame(++game_lvl);
+			}
+			else if(e.which == 27) { // escape
+				// pause/unpause
+			}
+			else if(waitingOnUser && e.which == 13) { // enter
+				// next level
+				waitingOnUser = false;
+				$('.overlay').hide();
+				game(game_lvl);
+			}
+		});
+		
+	});
+	
+	
+	
+	</script>
+	
+</head>
+<body>
+	<div class="container">
+
+		<div class="backing">
+			<canvas width="1000" height="500" class="scribble-canvas"></canvas>
+		</div>
+		
+		<div class="overlay victory defeat shadow"></div>
+		
+		<div class="overlay victory" style="display:none">
+			<div class="winnerbox">
+				<img class="winImage" src="art/you-win.png" />
+				<div class="instructions">You Win! The pups are safe!</div>
+				<div class="play" >Press Enter to Continue!</div>
+			</div>
+		</div>
+		<div class="overlay defeat" style="display:none">
+		
+			<div class="winnerbox">
+				<img class="winImage" src="art/you-lose.png" />
+				<div class="instructions2">You Lose! Sharks will eat your pups!</div>
+				<div class="play" >Press Enter to Try Again!</div>
+			</div>
+		</div>
+		<div class="overlay intro" style="display:none">
+			<img class="loadscreen" src="art/Loading-Screen.jpg" />
+			<div class="shading1"> </div>
+			<div class="shading2"> </div>
+			<div class="instructions"><h2>How to Play:</h2>Eat the sea urchins before they eat the kelp. Use the arrow keys to move. Return to the surface and press space repeatedly to eat an urchin.</div>
+			<div class="loading">Loading</div>
+			<div class="play" style="display:none;">Press Enter to Play!</div>
+			<div class="loadbar"><div class="loading-progress"></div></div>
+		</div>
+	</div>
+</body>
+
